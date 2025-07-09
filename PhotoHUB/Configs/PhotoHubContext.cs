@@ -1,8 +1,7 @@
 using PhotoHUB.models;
+using Microsoft.EntityFrameworkCore;
 
 namespace PhotoHUB.configs;
-using System;
-using Microsoft.EntityFrameworkCore;
 
 public class PhotoHubContext : DbContext
 {

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PhotoHUB.service;
 
 namespace PhotoHUB.controller;
+
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase

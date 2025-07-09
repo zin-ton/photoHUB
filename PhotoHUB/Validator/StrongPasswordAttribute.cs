@@ -1,7 +1,7 @@
-namespace PhotoHUB.validator;
-
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+
+namespace PhotoHUB.validator;
 
 public class StrongPasswordAttribute : ValidationAttribute
 {

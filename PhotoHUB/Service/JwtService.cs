@@ -1,12 +1,11 @@
 using System.Text;
 using PhotoHUB.configs;
 using PhotoHUB.DTO;
-
-namespace PhotoHUB.service;
-
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+
+namespace PhotoHUB.service;
 
 public class JwtService
 {

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace PhotoHUB.models;
 
 public class Like : Entity
