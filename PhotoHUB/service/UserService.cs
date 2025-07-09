@@ -9,12 +9,14 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
+    private readonly JwtService _jwtService;
 
-    public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
+    public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, JwtService jwtService)
     {
         _userRepository = userRepository;
         _mapper = mapper;
         _logger = logger;
+        _jwtService = jwtService;
     }
 
     public User MapDtoToUser(UserRegisterDTO dto)
@@ -44,12 +46,9 @@ public class UserService : IUserService
 
         var user = _mapper.Map<User>(dto);
         user.Password = PasswordHasher.HashPassword(dto.Password);
-
-        await _userRepository.AddUserAsync(user);
-
         try
         {
-            await _userRepository.SaveChangesAsync();
+            await _userRepository.AddAsync(user);
             return "User registered successfully";
         }
         catch (Exception ex)
@@ -61,37 +60,81 @@ public class UserService : IUserService
 
     public async Task<string> LoginAsync(UserLoginDTO dto)
     {
-        var user = await _userRepository.GetByLoginAsync(dto.username);
+        var user = await _userRepository.GetByLoginAsync(dto.Username);
         if (user == null)
         {
             return "User not found";
         }
 
-        if (!PasswordHasher.VerifyPassword(dto.password, user.Password))
+        if (!PasswordHasher.VerifyPassword(dto.Password, user.Password))
         {
             return "Invalid password";
         }
 
-        return "Login successful";
+        return _jwtService.GenerateToken(user.Id.ToString(), user.Login);
     }
 
-    public async Task<bool> VerifyPasswordAsync(Guid userId, string password)
+    public async Task<bool> VerifyPasswordAsync(string token, string password)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var userInfo = _jwtService.GetUserInfoFromToken(token);
+        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null) return false;
 
         return PasswordHasher.VerifyPassword(password, user.Password);
     }
 
-    public async Task<GetUserDTO?> GetUserInfoAsync(Guid userId)
+    public async Task<GetUserDTO?> GetUserInfoAsync(string token)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var userInfo = _jwtService.GetUserInfoFromToken(token);
+        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null)
         {
-            _logger.LogWarning("User with ID {UserId} not found", userId);
+            _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
             return null;
         }
         var userDto = _mapper.Map<GetUserDTO>(user);
         return userDto;
+    }
+    
+    public async Task<List<PostPreviewDTO>> GetSavedPostsAsync(string token)
+    {
+        var userInfo = _jwtService.GetUserInfoFromToken(token);
+        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
+            return new List<PostPreviewDTO>();
+        }
+        
+        var savedPosts = user.SavedPosts.Select(p => _mapper.Map<PostPreviewDTO>(p)).ToList();
+        return savedPosts;
+    }
+    
+    public async Task<List<PostPreviewDTO>> GetLikedPostsAsync(string token)
+    {
+        var userInfo = _jwtService.GetUserInfoFromToken(token);
+        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
+            return new List<PostPreviewDTO>();
+        }
+        
+        var likedPosts = user.Likes.Select(l => _mapper.Map<PostPreviewDTO>(l.Post)).ToList();
+        return likedPosts;
+    }
+    
+    public async Task<List<PostPreviewDTO>> GetMyPostsAsync(string token)
+    {
+        var userInfo = _jwtService.GetUserInfoFromToken(token);
+        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
+            return new List<PostPreviewDTO>();
+        }
+        
+        var myPosts = user.Posts.Select(p => _mapper.Map<PostPreviewDTO>(p)).ToList();
+        return myPosts;
     }
 }

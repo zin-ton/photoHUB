@@ -6,7 +6,7 @@ namespace PhotoHUB.DTO;
 public class UserLoginDTO
 {
     [Required]
-    public string username{ get; set; } = null!;
+    public string Username{ get; set; } = null!;
     [StrongPassword]
-    public string password{ get; set; } = null!;
+    public string Password{ get; set; } = null!;
 }

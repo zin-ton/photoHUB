@@ -1,12 +1,12 @@
 namespace PhotoHUB.models;
 
-public class Post
+public class Post : Entity
 {
-    public Guid Id { get; set; }
 
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
-
+    public string Name { get; set; } = null!;
+    public string Description { get; set; } = null!;
     public DateTime DateTime { get; set; }
     public string S3Key { get; set; } = null!;
     

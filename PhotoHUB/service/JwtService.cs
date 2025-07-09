@@ -1,5 +1,6 @@
 using System.Text;
 using PhotoHUB.configs;
+using PhotoHUB.DTO;
 
 namespace PhotoHUB.service;
 
@@ -37,4 +38,42 @@ public class JwtService
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
+    
+    public UserInfoFromToken GetUserInfoFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = _jwtSettings.Issuer,
+            ValidAudience = _jwtSettings.Audience,
+            ClockSkew = TimeSpan.Zero 
+        };
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var login = principal.FindFirst(ClaimTypes.Name)?.Value;
+
+            return new UserInfoFromToken
+            {
+                Guid = Guid.TryParse(userId, out var parsedId) ? parsedId : Guid.Empty,
+                Login = login ?? string.Empty
+            };
+        }
+        catch
+        {
+            return null!;
+        }
+    }
+
 }
+
+

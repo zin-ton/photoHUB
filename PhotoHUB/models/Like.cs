@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PhotoHUB.models;
 
-public class Like
+public class Like : Entity
 {
-    
-    public Guid Id { get; set; }
 
     public Guid PostId { get; set; }
     public Post Post { get; set; } = null!;

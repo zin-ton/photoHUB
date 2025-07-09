@@ -1,6 +1,6 @@
 namespace PhotoHUB.models;
 
-public class CollectionPost
+public class CollectionPost : Entity
 {
     public Guid CollectionId { get; set; }
     public Collection Collection { get; set; } = null!;

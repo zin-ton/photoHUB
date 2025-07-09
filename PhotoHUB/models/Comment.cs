@@ -1,8 +1,7 @@
 namespace PhotoHUB.models;
 
-public class Comment
+public class Comment : Entity
 {
-    public Guid Id { get; set; }
 
     public Guid PostId { get; set; }
     public Post Post { get; set; } = null!;
