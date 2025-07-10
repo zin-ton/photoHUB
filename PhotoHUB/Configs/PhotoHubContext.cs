@@ -48,19 +48,25 @@ public class PhotoHubContext : DbContext
         modelBuilder.Entity<PostToCategory>(entity =>
         {
             entity.ToTable("post_to_category");
+
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()").HasColumnName("id");
-            entity.HasIndex(e => e.PostId).IsUnique();
-            entity.HasIndex(e => e.CategoryId).IsUnique();
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.PostId).HasColumnName("post_id");
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.HasIndex(e => e.PostId);
+            entity.HasIndex(e => e.CategoryId);
+
+            entity.HasOne(ptc => ptc.Post)
+                .WithMany(p => p.PostToCategories)
+                .HasForeignKey(ptc => ptc.PostId);
 
             entity.HasOne(ptc => ptc.Category)
-                .WithMany()
+                .WithMany(c => c.PostToCategories)
                 .HasForeignKey(ptc => ptc.CategoryId);
-            
-            entity.HasOne<Post>()
-                .WithOne(p => p.PostToCategory)
-                .HasForeignKey<PostToCategory>(ptc => ptc.PostId);
         });
+
         
         modelBuilder.Entity<Post>(entity =>
         {
@@ -73,7 +79,7 @@ public class PhotoHubContext : DbContext
                 .WithMany(u => u.Posts)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
+            entity.Property(p => p.UserId).HasColumnName("user_id");
             entity.Property(p => p.DateTime).IsRequired().HasColumnName("datetime");
             entity.Property(p => p.S3Key).IsRequired().HasColumnName("s3_key");
 
@@ -92,7 +98,8 @@ public class PhotoHubContext : DbContext
             entity.HasOne(l => l.User)
                 .WithMany(u => u.Likes)
                 .HasForeignKey(l => l.UserId);
-
+            entity.Property(l => l.UserId).HasColumnName("user_id");
+            entity.Property(l => l.PostId).HasColumnName("post_id");
             entity.Property(l => l.DateTime).IsRequired().HasColumnName("date_time");
         });
         
@@ -101,7 +108,8 @@ public class PhotoHubContext : DbContext
             entity.ToTable("saved_posts");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()").HasColumnName("id");
-
+            entity.Property(e => e.PostId).HasColumnName("post_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.HasOne(sp => sp.Post)
                 .WithMany(p => p.SavedPosts)
                 .HasForeignKey(sp => sp.PostId);
@@ -116,7 +124,8 @@ public class PhotoHubContext : DbContext
             entity.ToTable("comment");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()").HasColumnName("id");
-
+            entity.Property(e => e.PostId).HasColumnName("post_id");
+            
             entity.HasOne(c => c.Post)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId);
@@ -124,7 +133,8 @@ public class PhotoHubContext : DbContext
             entity.HasOne(c => c.User)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(c => c.UserId);
-
+            entity.Property(c => c.UserId).HasColumnName("user_id");
+            entity.Property(c => c.ReplyToId).HasColumnName("reply_to");
             entity.Property(c => c.Content).IsRequired().HasColumnName("content");
             entity.Property(c => c.DateTime).IsRequired().HasColumnName("date_time");
             
@@ -143,7 +153,7 @@ public class PhotoHubContext : DbContext
             entity.HasOne(c => c.User)
                 .WithMany(u => u.Collections)
                 .HasForeignKey(c => c.UserId);
-
+            entity.Property(c => c.UserId).HasColumnName("user_id");
             entity.Property(c => c.Name).IsRequired().HasColumnName("name");
         });
         
@@ -152,7 +162,8 @@ public class PhotoHubContext : DbContext
             entity.ToTable("collection_posts");
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()").HasColumnName("id");
             entity.HasKey(e => e.Id);
-        
+            entity.Property(e => e.PostId).HasColumnName("post_id");
+            entity.Property(e => e.CollectionId).HasColumnName("collection_id");
             entity.HasOne(cp => cp.Collection)
                 .WithMany(c => c.CollectionPosts)
                 .HasForeignKey(cp => cp.CollectionId);

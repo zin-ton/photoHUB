@@ -8,7 +8,7 @@ using PhotoHUB.Repository;
 using PhotoHUB.service;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var optionsBuilder = new DbContextOptionsBuilder<PhotoHubContext>();
 builder.Services.AddOpenApi();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -22,6 +22,12 @@ builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
+optionsBuilder.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
+    .EnableSensitiveDataLogging();
+
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

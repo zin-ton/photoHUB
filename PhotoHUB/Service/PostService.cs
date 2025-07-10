@@ -56,7 +56,7 @@ public class PostService : IPostService
         return _mapper.Map<PostPreviewDTO>(post);
     }
     
-    public async Task<PostPreviewDTO?> CreatePostAsync(string token, PostCreateDTO postCreateDto)
+    public async Task<PostPreviewDTO?> CreatePostAsync(string token, PostCreateDTO postCreateDto) //TODO add geting post from db before returning and change PostPreviewDTO to store username and categories
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
