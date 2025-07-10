@@ -23,4 +23,18 @@ public class PostRepository : GenericRepository<Post>, IPostRepository
             .Take(pageSize);
         return await posts.ToListAsync();
     }
+
+    public async Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId, int page, int pageSize)
+    {
+        var posts = _context.Posts
+            .Where(p => p.UserId == userId)
+            .Include(p => p.User)
+            .Include(p => p.Comments)
+            .OrderByDescending(p => p.DateTime)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+        return await posts.ToListAsync();
+    }
+    
+
 }

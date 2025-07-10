@@ -36,7 +36,7 @@ public class PostService : IPostService
         return _mapper.Map<IEnumerable<PostPreviewDTO>>(posts);
     }
     
-    public async Task<PostPreviewDTO?> GetPostByIdAsync(string token, Guid postId)
+    public async Task<PostDTO?> GetPostByIdAsync(string token, Guid postId)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
@@ -53,7 +53,9 @@ public class PostService : IPostService
             return null;
         }
         
-        return _mapper.Map<PostPreviewDTO>(post);
+        PostDTO postDTO = _mapper.Map<PostDTO>(post);
+        postDTO.Comments = _mapper.Map<ICollection<CommentDTO>>(post.Comments);
+        return postDTO;
     }
     
     public async Task<PostPreviewDTO?> CreatePostAsync(string token, PostCreateDTO postCreateDto) //TODO add geting post from db before returning and change PostPreviewDTO to store username and categories
@@ -90,16 +92,39 @@ public class PostService : IPostService
         }
         
         var post = await _postRepository.GetByIdAsync(postUpdateDto.Id);
-        if (post == null || post.UserId != user.Id)
+        if (post == null || post.User != user)
         {
             _logger.LogWarning("Post with ID {PostId} not found or does not belong to user with ID {UserId}", postUpdateDto.Id, userInfo.Guid);
             return null;
         }
         
         _mapper.Map(postUpdateDto, post);
+        post.DateTime = DateTime.SpecifyKind(post.DateTime, DateTimeKind.Utc);
         var updatedPost = await _postRepository.UpdateAsync(post);
         
         return _mapper.Map<PostPreviewDTO>(updatedPost);
     }
+    
+    public async Task<bool> DeletePostAsync(string token, string postId)
+    {
+        var userInfo = _jwtService.GetUserInfoFromToken(token);
+        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
+        if (user == null)
+        {
+            _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
+            return false;
+        }
+        
+        var post = await _postRepository.GetByIdAsync(Guid.Parse(postId));
+        if (post == null || post.User != user)
+        {
+            _logger.LogWarning("Post with ID {PostId} not found or does not belong to user with ID {UserId}", postId, userInfo.Guid);
+            return false;
+        }
+        
+        return await _postRepository.DeleteAsync(post.Id);
+    }
+    
+    
     
 }

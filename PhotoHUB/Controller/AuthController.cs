@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhotoHUB.DTO;
 using PhotoHUB.service;
@@ -57,6 +58,13 @@ public class AuthController : ControllerBase
             }
             else
             {
+                Response.Cookies.Append("jwt_token", result, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true, 
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
+                });
                 return Ok(new { message = result });
             }
         }
@@ -67,14 +75,13 @@ public class AuthController : ControllerBase
         }
     }
     
+    [Authorize]
     [HttpPost("verifyPassword")]
     public async Task<IActionResult> VerifyPassword([FromBody] string password)
     {
-        string authHeader = Request.Headers["Authorization"];
-
-        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
-        {
-            string token = authHeader.Substring("Bearer ".Length).Trim();
+            string? token = HttpContext.Request.Cookies["jwt_token"];
+            if(token == null) 
+                return Unauthorized(new { message = "Unauthorized access. Token is missing." });
             try
             {
                 bool isValid = await _userService.VerifyPasswordAsync(token, password);
@@ -92,10 +99,5 @@ public class AuthController : ControllerBase
                 _logger.LogError(ex, "Password verification failed");
                 return StatusCode(500, "Internal server error");
             }
-        }
-        else
-        {
-            return Unauthorized(new {message = "Authorization header is missing or invalid."});
-        }
     }
 }

@@ -27,4 +27,11 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.Login == login);
     }
     
+    public async Task<User?> GetByIdWithPostsAsync(Guid id)
+    {
+        return await _context.Users
+            .Include(u => u.Posts)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
+    
 }

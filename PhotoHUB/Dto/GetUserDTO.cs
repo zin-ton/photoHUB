@@ -1,3 +1,5 @@
+using PhotoHUB.models;
+
 namespace PhotoHUB.DTO;
 
 public class GetUserDTO

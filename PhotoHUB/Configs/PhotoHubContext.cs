@@ -123,9 +123,17 @@ public class PhotoHubContext : DbContext
         {
             entity.ToTable("comment");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()").HasColumnName("id");
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+
             entity.Property(e => e.PostId).HasColumnName("post_id");
-            
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.ReplyToId).HasColumnName("reply_to");
+            entity.Property(e => e.Content).IsRequired().HasColumnName("content");
+            entity.Property(e => e.DateTime).IsRequired().HasColumnName("date_time");
+
             entity.HasOne(c => c.Post)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId);
@@ -133,16 +141,13 @@ public class PhotoHubContext : DbContext
             entity.HasOne(c => c.User)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(c => c.UserId);
-            entity.Property(c => c.UserId).HasColumnName("user_id");
-            entity.Property(c => c.ReplyToId).HasColumnName("reply_to");
-            entity.Property(c => c.Content).IsRequired().HasColumnName("content");
-            entity.Property(c => c.DateTime).IsRequired().HasColumnName("date_time");
-            
+
             entity.HasOne(c => c.ReplyTo)
-                .WithMany()
+                .WithMany(c => c.Replies) 
                 .HasForeignKey(c => c.ReplyToId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
         
         modelBuilder.Entity<Collection>(entity =>
         {

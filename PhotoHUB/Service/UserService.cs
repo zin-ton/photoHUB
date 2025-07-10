@@ -10,7 +10,6 @@ public class UserService : IUserService
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
     private readonly JwtService _jwtService;
-
     public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger, JwtService jwtService)
     {
         _userRepository = userRepository;
@@ -127,14 +126,23 @@ public class UserService : IUserService
     public async Task<List<PostPreviewDTO>> GetMyPostsAsync(string token)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
-        var user = await _userRepository.GetByIdAsync(userInfo.Guid);
+        var user = await _userRepository.GetByIdWithPostsAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
             return new List<PostPreviewDTO>();
         }
-        
-        var myPosts = user.Posts.Select(p => _mapper.Map<PostPreviewDTO>(p)).ToList();
+
+        var myPosts = new List<PostPreviewDTO>();
+        if (user.Posts != null && user.Posts.Any())
+        {
+            myPosts = user.Posts.Select(p => _mapper.Map<PostPreviewDTO>(p)).ToList();
+        }
+        else
+        {
+            _logger.LogWarning("User with ID {UserId} has no posts", userInfo.Guid);
+            myPosts = new List<PostPreviewDTO>();
+        }
         return myPosts;
     }
 }
