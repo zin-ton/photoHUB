@@ -2,6 +2,7 @@ using AutoMapper;
 using PhotoHUB.DTO;
 using PhotoHUB.models;
 using PhotoHUB.Repository;
+using PhotoHUB.Service;
 
 namespace PhotoHUB.service;
 
@@ -23,31 +24,31 @@ public class CommentService : ICommentService
         _userRepository = userRepository;
     }
     
-    public async Task<CommentDTO> CreateCommentAsync(string token, CreateCommentDTO comment)
+    public async Task<CommentDto> CreateCommentAsync(string token, CreateCommentDto comment)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
-            return null;
+            return null!;
         }
-        Comment NewComment = _mapper.Map<Comment>(comment);
-        NewComment.UserId = user.Id;
-        NewComment.DateTime = DateTime.UtcNow;
-        return _mapper.Map<CommentDTO>(await _commentRepository.AddAsync(NewComment));
+        Comment newComment = _mapper.Map<Comment>(comment);
+        newComment.UserId = user.Id;
+        newComment.DateTime = DateTime.UtcNow;
+        return _mapper.Map<CommentDto>(await _commentRepository.AddAsync(newComment));
     }
     
-    public async Task<IEnumerable<CommentDTO>> GetCommentsByPostIdAsync(Guid postId, int page, int pageSize)
+    public async Task<IEnumerable<CommentDto>> GetCommentsByPostIdAsync(Guid postId, int page, int pageSize)
     {
         var comments = await _commentRepository.GetCommentsByPostIdAsync(postId, page, pageSize);
-        return _mapper.Map<IEnumerable<CommentDTO>>(comments);
+        return _mapper.Map<IEnumerable<CommentDto>>(comments);
     }
     
-    public async Task<IEnumerable<CommentDTO>> GetRepliesByCommentIdAsync(Guid commentId, int page, int pageSize)
+    public async Task<IEnumerable<CommentDto>> GetRepliesByCommentIdAsync(Guid commentId, int page, int pageSize)
     {
         var replies = await _commentRepository.GetRepliesByCommentIdAsync(commentId, page, pageSize);
-        return _mapper.Map<IEnumerable<CommentDTO>>(replies);
+        return _mapper.Map<IEnumerable<CommentDto>>(replies);
     }
     
     public async Task<int> GetTotalCommentsCountByPostIdAsync(Guid postId)
@@ -60,24 +61,24 @@ public class CommentService : ICommentService
         return await _commentRepository.GetTotalRepliesCountByCommentIdAsync(commentId);
     }
     
-    public async Task<CommentDTO> UpdateCommentAsync(string token, UpdateCommentDTO comment)
+    public async Task<CommentDto> UpdateCommentAsync(string token, UpdateCommentDto comment)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
-            return null;
+            return null!;
         }
         var updateComment = await _commentRepository.GetByIdAsync(comment.Id);
-        if(user != updateComment.User) 
+        if(user != updateComment!.User) 
         {
             _logger.LogWarning("User with ID {UserId} is not authorized to update this comment", userInfo.Guid);
-            return null;
+            return null!;
         }
         updateComment.Content = comment.Content;
         updateComment.DateTime = DateTime.SpecifyKind(updateComment.DateTime, DateTimeKind.Utc);
-        return _mapper.Map<CommentDTO>(await _commentRepository.UpdateAsync(updateComment));
+        return _mapper.Map<CommentDto>(await _commentRepository.UpdateAsync(updateComment));
     }
     
     public async Task<bool> DeleteCommentAsync(string token, Guid commentId)
@@ -111,9 +112,9 @@ public class CommentService : ICommentService
 
     }
     
-    public async Task<CommentDTO> GetCommentByIdAsync(Guid commentId)
+    public async Task<CommentDto> GetCommentByIdAsync(Guid commentId)
     {
-        return _mapper.Map<CommentDTO>(await _commentRepository.GetByIdAsync(commentId));
+        return _mapper.Map<CommentDto>(await _commentRepository.GetByIdAsync(commentId));
     }
     
     

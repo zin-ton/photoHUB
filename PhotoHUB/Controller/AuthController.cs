@@ -18,13 +18,8 @@ public class AuthController : ControllerBase
     }
     
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] UserRegisterDTO registrationDto)
+    public async Task<IActionResult> Register([FromBody] UserRegisterDto registrationDto)
     {
-        if (registrationDto == null)
-        {
-            return BadRequest("Invalid registration data.");
-        }
-
         try
         {
             var result = await _userService.RegisterUserAsync(registrationDto);
@@ -45,10 +40,8 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] UserLoginDTO loginDto)
+    public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
     {
-        if(loginDto == null)
-            return BadRequest("Invalid login data.");
         try
         {
             var result = await _userService.LoginAsync(loginDto);

@@ -10,45 +10,29 @@ namespace PhotoHUB.controller;
 public class CommentController : ControllerBase
 {
     private readonly ICommentService _commentService;
-    private readonly ILogger<CommentController> _logger;
-    
+
     public CommentController(ICommentService commentService, ILogger<CommentController> logger)
     {
         _commentService = commentService;
-        _logger = logger;
     }
     
     [Authorize]
     [HttpPost("create")]
-    public async Task<IActionResult> CreateCommentAsync([FromBody] CreateCommentDTO comment)
+    public async Task<IActionResult> CreateCommentAsync([FromBody] CreateCommentDto comment)
     {
         string? token = HttpContext.Request.Cookies["jwt_token"];
         var result = await _commentService.CreateCommentAsync(token, comment);
-        if (result != null)
-        {
-            return Ok(result);
-        }
-        else
-        {
-            return StatusCode(500, "Internal server error while creating comment");
-        }
+        return Ok(result);
     }
 
 
     [Authorize]
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateCommentAsync([FromBody] UpdateCommentDTO comment)
+    public async Task<IActionResult> UpdateCommentAsync([FromBody] UpdateCommentDto comment)
     {
         string? token = HttpContext.Request.Cookies["jwt_token"];
         var updatedComment = await _commentService.UpdateCommentAsync(token, comment);
-        if (updatedComment != null)
-        {
-            return Ok(updatedComment);
-        }
-        else
-        {
-            return NotFound("Comment not found or update failed");
-        }
+        return Ok(updatedComment);
     }
     
     [Authorize]
@@ -71,14 +55,7 @@ public class CommentController : ControllerBase
     public async Task<IActionResult> GetCommentsByPostIdAsync(Guid postId, int page, int pageSize)
     {
         var comments = await _commentService.GetCommentsByPostIdAsync(postId, page, pageSize);
-        if (comments != null)
-        {
-            return Ok(comments);
-        }
-        else
-        {
-            return NotFound("No comments found for this post");
-        }
+        return Ok(comments);
     }
     
     [Authorize]
@@ -86,14 +63,7 @@ public class CommentController : ControllerBase
     public async Task<IActionResult> GetRepliesByCommentIdAsync(Guid commentId, int page, int pageSize)
     {
         var replies = await _commentService.GetRepliesByCommentIdAsync(commentId, page, pageSize);
-        if (replies != null)
-        {
-            return Ok(replies);
-        }
-        else
-        {
-            return NotFound("No replies found for this comment");
-        }
+        return Ok(replies);
     }
     
     [Authorize]
@@ -117,14 +87,7 @@ public class CommentController : ControllerBase
     public async Task<IActionResult> GetCommentByIdAsync(Guid commentId)
     {
         var comment = await _commentService.GetCommentByIdAsync(commentId);
-        if (comment != null)
-        {
-            return Ok(comment);
-        }
-        else
-        {
-            return NotFound("Comment not found");
-        }
+        return Ok(comment);
     }
     
 }

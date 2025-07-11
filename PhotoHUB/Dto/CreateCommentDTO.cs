@@ -1,6 +1,6 @@
 namespace PhotoHUB.DTO;
 
-public class CreateCommentDTO
+public class CreateCommentDto
 {
     public Guid PostId { get; set; }
     public string Content { get; set; } = null!;

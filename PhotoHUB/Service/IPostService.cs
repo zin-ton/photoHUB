@@ -4,10 +4,10 @@ namespace PhotoHUB.service;
 
 public interface IPostService
 {
-    public Task<IEnumerable<PostPreviewDTO>> GetPostsAsync(string token, int page, int pageSize);
-    public Task<PostDTO?> GetPostByIdAsync(string token, Guid postId);
-    public Task<PostPreviewDTO?> CreatePostAsync(string token, PostCreateDTO postCreateDto);
-    public Task<PostPreviewDTO?> UpdatePostAsync(string token, PostUpdateDTO postUpdateDto);
+    public Task<IEnumerable<PostPreviewDto>> GetPostsAsync(string token, int page, int pageSize);
+    public Task<PostDto?> GetPostByIdAsync(string token, Guid postId);
+    public Task<PostPreviewDto?> CreatePostAsync(string token, PostCreateDto postCreateDto);
+    public Task<PostPreviewDto?> UpdatePostAsync(string token, PostUpdateDto postUpdateDto);
     public Task<bool> DeletePostAsync(string token, string postId);
     
 }

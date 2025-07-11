@@ -2,6 +2,7 @@ using AutoMapper;
 using PhotoHUB.DTO;
 using PhotoHUB.models;
 using PhotoHUB.Repository;
+using PhotoHUB.Service;
 
 namespace PhotoHUB.service;
 
@@ -23,20 +24,20 @@ public class PostService : IPostService
         _userRepository = userRepository;
     }
     
-    public async Task<IEnumerable<PostPreviewDTO>> GetPostsAsync(string token, int page, int pageSize)
+    public async Task<IEnumerable<PostPreviewDto>> GetPostsAsync(string token, int page, int pageSize)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
-            return null;
+            return null!;
         }
         var posts = await _postRepository.GetPostAsync(page, pageSize);
-        return _mapper.Map<IEnumerable<PostPreviewDTO>>(posts);
+        return _mapper.Map<IEnumerable<PostPreviewDto>>(posts);
     }
     
-    public async Task<PostDTO?> GetPostByIdAsync(string token, Guid postId)
+    public async Task<PostDto?> GetPostByIdAsync(string token, Guid postId)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
@@ -53,12 +54,12 @@ public class PostService : IPostService
             return null;
         }
         
-        PostDTO postDTO = _mapper.Map<PostDTO>(post);
-        postDTO.Comments = _mapper.Map<ICollection<CommentDTO>>(post.Comments);
-        return postDTO;
+        PostDto postDto = _mapper.Map<PostDto>(post);
+        postDto.Comments = _mapper.Map<ICollection<CommentDto>>(post.Comments);
+        return postDto;
     }
     
-    public async Task<PostPreviewDTO?> CreatePostAsync(string token, PostCreateDTO postCreateDto) //TODO add geting post from db before returning and change PostPreviewDTO to store username and categories
+    public async Task<PostPreviewDto?> CreatePostAsync(string token, PostCreateDto postCreateDto) //TODO add geting post from db before returning and change PostPreviewDTO to store username and categories
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
@@ -72,16 +73,11 @@ public class PostService : IPostService
         post.UserId = user.Id;
         post.DateTime = DateTime.UtcNow;
         var createdPost = await _postRepository.AddAsync(post);
-        if (createdPost == null)
-        {
-            _logger.LogError("Failed to create post for user with ID {UserId}", userInfo.Guid);
-            return null;
-        }
-        
-        return _mapper.Map<PostPreviewDTO>(createdPost);
+
+        return _mapper.Map<PostPreviewDto>(createdPost);
     }
     
-    public async Task<PostPreviewDTO?> UpdatePostAsync(string token, PostUpdateDTO postUpdateDto)
+    public async Task<PostPreviewDto?> UpdatePostAsync(string token, PostUpdateDto postUpdateDto)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
@@ -102,7 +98,7 @@ public class PostService : IPostService
         post.DateTime = DateTime.SpecifyKind(post.DateTime, DateTimeKind.Utc);
         var updatedPost = await _postRepository.UpdateAsync(post);
         
-        return _mapper.Map<PostPreviewDTO>(updatedPost);
+        return _mapper.Map<PostPreviewDto>(updatedPost);
     }
     
     public async Task<bool> DeletePostAsync(string token, string postId)

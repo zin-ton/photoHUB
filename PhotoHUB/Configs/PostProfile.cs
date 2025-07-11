@@ -8,14 +8,14 @@ public class PostProfile : Profile
 {
     public PostProfile()
     {
-        CreateMap<Post, PostPreviewDTO>()
+        CreateMap<Post, PostPreviewDto>()
             .ForMember(dest => dest.Guid, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.AuthorLogin, opt => opt.MapFrom(src => src.User.Login));
-        CreateMap<PostCreateDTO, Post>();
-        CreateMap<PostUpdateDTO, Post>()
+        CreateMap<PostCreateDto, Post>();
+        CreateMap<PostUpdateDto, Post>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.DateTime, opt => opt.Ignore());
-        CreateMap<Post, PostDTO>()
+        CreateMap<Post, PostDto>()
             .ForMember(dest => dest.Guid, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.Likes.Count))
             .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments))

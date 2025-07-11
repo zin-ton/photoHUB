@@ -4,6 +4,8 @@ using PhotoHUB.models;
 using PhotoHUB.Repository;
 using PhotoHUB.service;
 
+namespace PhotoHUB.Service;
+
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
@@ -18,20 +20,20 @@ public class UserService : IUserService
         _jwtService = jwtService;
     }
 
-    public User MapDtoToUser(UserRegisterDTO dto)
+    public User MapDtoToUser(UserRegisterDto dto)
     {
         var user = _mapper.Map<User>(dto);
         user.Password = PasswordHasher.HashPassword(dto.Password);
         return user;
     }
 
-    public GetUserDTO MapUserToGetUserDTO(User user)
+    public GetUserDto MapUserToGetUserDto(User user)
     {
-        var userDTO = _mapper.Map<GetUserDTO>(user);
-        return userDTO;
+        var userDto = _mapper.Map<GetUserDto>(user);
+        return userDto;
     }
 
-    public async Task<string> RegisterUserAsync(UserRegisterDTO dto)
+    public async Task<string> RegisterUserAsync(UserRegisterDto dto)
     {
         if (await _userRepository.LoginExistsAsync(dto.Login))
         {
@@ -57,7 +59,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<string> LoginAsync(UserLoginDTO dto)
+    public async Task<string> LoginAsync(UserLoginDto dto)
     {
         var user = await _userRepository.GetByLoginAsync(dto.Username);
         if (user == null)
@@ -82,7 +84,7 @@ public class UserService : IUserService
         return PasswordHasher.VerifyPassword(password, user.Password);
     }
 
-    public async Task<GetUserDTO?> GetUserInfoAsync(string token)
+    public async Task<GetUserDto?> GetUserInfoAsync(string token)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
@@ -91,57 +93,57 @@ public class UserService : IUserService
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
             return null;
         }
-        var userDto = _mapper.Map<GetUserDTO>(user);
+        var userDto = _mapper.Map<GetUserDto>(user);
         return userDto;
     }
     
-    public async Task<List<PostPreviewDTO>> GetSavedPostsAsync(string token)
+    public async Task<List<PostPreviewDto>> GetSavedPostsAsync(string token)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
-            return new List<PostPreviewDTO>();
+            return new List<PostPreviewDto>();
         }
         
-        var savedPosts = user.SavedPosts.Select(p => _mapper.Map<PostPreviewDTO>(p)).ToList();
+        var savedPosts = user.SavedPosts.Select(p => _mapper.Map<PostPreviewDto>(p)).ToList();
         return savedPosts;
     }
     
-    public async Task<List<PostPreviewDTO>> GetLikedPostsAsync(string token)
+    public async Task<List<PostPreviewDto>> GetLikedPostsAsync(string token)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
-            return new List<PostPreviewDTO>();
+            return new List<PostPreviewDto>();
         }
         
-        var likedPosts = user.Likes.Select(l => _mapper.Map<PostPreviewDTO>(l.Post)).ToList();
+        var likedPosts = user.Likes.Select(l => _mapper.Map<PostPreviewDto>(l.Post)).ToList();
         return likedPosts;
     }
     
-    public async Task<List<PostPreviewDTO>> GetMyPostsAsync(string token)
+    public async Task<List<PostPreviewDto>> GetMyPostsAsync(string token)
     {
         var userInfo = _jwtService.GetUserInfoFromToken(token);
         var user = await _userRepository.GetByIdWithPostsAsync(userInfo.Guid);
         if (user == null)
         {
             _logger.LogWarning("User with ID {UserId} not found", userInfo.Guid);
-            return new List<PostPreviewDTO>();
+            return new List<PostPreviewDto>();
         }
 
-        var myPosts = new List<PostPreviewDTO>();
-        if (user.Posts != null && user.Posts.Any())
+        List<PostPreviewDto> myPosts;
+        if (user.Posts.Any())
         {
-            myPosts = user.Posts.Select(p => _mapper.Map<PostPreviewDTO>(p)).ToList();
+            myPosts = user.Posts.Select(p => _mapper.Map<PostPreviewDto>(p)).ToList();
         }
         else
         {
             _logger.LogWarning("User with ID {UserId} has no posts", userInfo.Guid);
-            myPosts = new List<PostPreviewDTO>();
+            myPosts = new List<PostPreviewDto>();
         }
         return myPosts;
     }

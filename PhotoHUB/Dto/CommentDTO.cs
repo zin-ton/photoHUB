@@ -2,7 +2,7 @@ using PhotoHUB.models;
 
 namespace PhotoHUB.DTO;
 
-public class CommentDTO
+public class CommentDto
 {
     public Guid Id { get; set; }
     public string Content { get; set; } = null!;

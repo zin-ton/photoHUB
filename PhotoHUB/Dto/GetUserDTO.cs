@@ -2,7 +2,7 @@ using PhotoHUB.models;
 
 namespace PhotoHUB.DTO;
 
-public class GetUserDTO
+public class GetUserDto
 {
     public Guid Id { get; set; }
     public string Login { get; set; } = null!;

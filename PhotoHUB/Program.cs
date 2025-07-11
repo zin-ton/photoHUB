@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using PhotoHUB.configs;
 using PhotoHUB.Repository;
 using PhotoHUB.service;
+using PhotoHUB.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 var optionsBuilder = new DbContextOptionsBuilder<PhotoHubContext>();

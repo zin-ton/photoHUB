@@ -21,7 +21,7 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpPost("create")]
-    public async Task<ActionResult<Post>> Post([FromBody] PostCreateDTO post)
+    public async Task<ActionResult<Post>> Post([FromBody] PostCreateDto post)
     {
         string? token = HttpContext.Request.Cookies["jwt_token"];
         if (string.IsNullOrEmpty(token))
@@ -31,15 +31,8 @@ public class PostController : ControllerBase
 
         try
         {
-            var CreatedPost = await _postService.CreatePostAsync(token, post);
-            if (CreatedPost != null)
-            {
-                return Ok(CreatedPost);
-            }
-            else
-            {
-                return StatusCode(500, "Internal server error while creating post");
-            }
+            var createdPost = await _postService.CreatePostAsync(token, post);
+            return createdPost != null ? Ok(createdPost) : StatusCode(500, "Internal server error while creating post");
         }
         catch (Exception ex)
         {
@@ -50,7 +43,7 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpGet("getPosts")]
-    public async Task<ActionResult<IEnumerable<PostPreviewDTO>>> GetPosts(int page, int pageSize)
+    public async Task<ActionResult<IEnumerable<PostPreviewDto>>> GetPosts(int page, int pageSize)
     {
         string? token = HttpContext.Request.Cookies["jwt_token"];
         if (string.IsNullOrEmpty(token))
@@ -61,14 +54,7 @@ public class PostController : ControllerBase
         try
         {
             var posts = await _postService.GetPostsAsync(token, page, pageSize);
-            if (posts != null)
-            {
-                return Ok(posts);
-            }
-            else
-            {
-                return NotFound(new { message = "No posts found" });
-            }
+            return Ok(posts);
         }
         catch (Exception ex)
         {
@@ -79,7 +65,7 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpGet("getPostById")]
-    public async Task<ActionResult<PostPreviewDTO>> GetPostById(string postId)
+    public async Task<ActionResult<PostPreviewDto>> GetPostById(string postId)
     {
         string? token = HttpContext.Request.Cookies["jwt_token"];
         if (string.IsNullOrEmpty(token))
@@ -108,7 +94,7 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpPut("updatePost")]
-    public async Task<ActionResult<PostPreviewDTO>> UpdatePost([FromBody] PostUpdateDTO postUpdateDto)
+    public async Task<ActionResult<PostPreviewDto>> UpdatePost([FromBody] PostUpdateDto postUpdateDto)
     {
         string? token = HttpContext.Request.Cookies["jwt_token"];
         if (string.IsNullOrEmpty(token))

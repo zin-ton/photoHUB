@@ -1,6 +1,6 @@
 namespace PhotoHUB.DTO;
 
-public class PostUpdateDTO
+public class PostUpdateDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;

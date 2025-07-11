@@ -1,6 +1,6 @@
 namespace PhotoHUB.DTO;
 
-public class PostPreviewDTO
+public class PostPreviewDto
 {
     public Guid Guid { get; set; }
     public string Name { get; set; } = null!;

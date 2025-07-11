@@ -3,7 +3,7 @@ using PhotoHUB.validator;
 
 namespace PhotoHUB.DTO;
 
-public class UserLoginDTO
+public class UserLoginDto
 {
     [Required]
     public string Username{ get; set; } = null!;
