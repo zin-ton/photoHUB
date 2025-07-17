@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "RGNN4mRL9qY=",
+  "dgSpecHash": "c5Z7Y18m9pY=",
   "success": true,
   "projectFilePath": "/home/zinton/RiderProjects/PhotoHUB/PhotoHUB/PhotoHUB.csproj",
   "expectedPackageFiles": [
     "/home/zinton/.nuget/packages/automapper/15.0.0/automapper.15.0.0.nupkg.sha512",
+    "/home/zinton/.nuget/packages/awssdk.core/4.0.0.16/awssdk.core.4.0.0.16.nupkg.sha512",
+    "/home/zinton/.nuget/packages/awssdk.s3/4.0.5/awssdk.s3.4.0.5.nupkg.sha512",
     "/home/zinton/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/zinton/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/zinton/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/9.0.6/microsoft.aspnetcore.authentication.jwtbearer.9.0.6.nupkg.sha512",

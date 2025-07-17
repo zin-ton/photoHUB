@@ -1,7 +1,10 @@
 using System.Text;
+using Amazon;
+using Amazon.S3;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PhotoHUB.configs;
 using PhotoHUB.Repository;
@@ -48,7 +51,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.Configure<AwsSettings>(builder.Configuration.GetSection("AWS"));
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var config = sp.GetRequiredService<IOptions<AwsSettings>>().Value;
 
+    var credentials = new Amazon.Runtime.BasicAWSCredentials(config.AccessKey, config.SecretKey);
+    var region = RegionEndpoint.GetBySystemName(config.Region);
+
+    return new AmazonS3Client(credentials, region);
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -60,6 +72,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

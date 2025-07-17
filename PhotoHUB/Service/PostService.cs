@@ -73,7 +73,6 @@ public class PostService : IPostService
         post.UserId = user.Id;
         post.DateTime = DateTime.UtcNow;
         var createdPost = await _postRepository.AddAsync(post);
-
         return _mapper.Map<PostPreviewDto>(createdPost);
     }
     
